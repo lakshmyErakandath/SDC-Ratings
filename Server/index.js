@@ -22,17 +22,26 @@ app.get('/products', (req, res) => {
     res.send(result);
   });
 
-})
+});
 
 app.get('/reviews', (req, res) => {
-  db.getReviews((err, result) => {
+  db.getReviews(req.query, (err, result) => {
     if (err) {
       throw err;
     }
     res.send(result);
   });
 
-})
+});
+
+app.get('/reviews/meta', (req, res) => {
+  db.getReviewsMeta(req.query, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    res.send(result);
+  });
+});
 
 app.listen(port, () => {
   console.log (`App running on port ${port}.`);
