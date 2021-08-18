@@ -10,15 +10,6 @@ const pool = new Pool({
   port: 5432,
 });
 
-const getProducts = (callback) => {
-  pool.query('SELECT * FROM products limit 20', (error, results) => {
-    if (error) {
-      callback(error, null);
-    }
-    callback(null, results.rows);
-  });
-};
-
 const getReviews = (query, callback) => {
   pool.query(`SELECT reviews.id AS review_id, reviews.rating,
   reviews.summary, reviews.recommend, reviews.response,
@@ -67,24 +58,12 @@ const getReviewsMeta = (query, callback) => {
 };
 
 const postReviews = (options, callback) => {
-  const insertReviews = `INSERT INTO reviews(product_id, rating, summary, recommend,
-      response, body, date,reviewer_name, helpfulness)
+  const insertReviews = `INSERT INTO reviews(product_id, rating, summary,
+     recommend,response, body, date,reviewer_name, helpfulness)
       VALUES(${options.productId}, ${options.rating}, '${options.summary}',
          ${options.recommend}, '${options.response}', '${options.body}',
          ${options.date}, '${options.reviewerName}', ${options.helpfulness})
        RETURNING id AS review_id`;
-
-  // const insertCharacteristics =
-  //  `INSERT into characteristics(product_id,name)
-  //  VALUES(${query.product_id}, ${char_name});
-  //  RETURNING id AS characteristic_id`;
-
-  //  const insertCharReviews =
-  //  `INSERT INTO characteristics_reviews(characteristic_id, reviews_id, value)
-  //  VALUES((SELECT characteristic_id FROM characteristics),
-  //   (SELECT review_id from reviews))`;
-
-  // const queries = insertReviews;
 
   pool.query(insertReviews, (error, results) => {
     if (error) {
@@ -98,7 +77,6 @@ const postReviews = (options, callback) => {
       });
 
      let query = format('INSERT INTO reviews_photos (review_id, url) VALUES %L', photos);
-
       pool.query(query, (error, results) => {
         if (error) {
           callback(error, null);
@@ -108,21 +86,20 @@ const postReviews = (options, callback) => {
           let characteristicsValue = Object.values(options.characteristics);
           characteristicsValue.forEach(item => {
             characteristics.push([item.id, item.value, reviewId]);
-          })
+          });
 
           let characteristicsQuery =
-          format('INSERT INTO characteristics_reviews (review_id, value) VALUES %L',
+          format('INSERT INTO characteristics_reviews (characteristic_id, value,review_id) VALUES %L',
            characteristics);
-           console.log(characteristicsQuery);
            pool.query(characteristicsQuery, (error, results) => {
             if (error) {
               callback(error, null);
             }else {
               callback(null, results);
             }
-        })
+        });
       };
-    })
+    });
   };
 });
 }
@@ -130,7 +107,6 @@ const postReviews = (options, callback) => {
 
 
 module.exports = {
-  getProducts,
   getReviews,
   getReviewsMeta,
   postReviews,

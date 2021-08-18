@@ -1,5 +1,7 @@
+const newrelic = require('newrelic');
 const express = require('express');
 const bodyParser = require('body-parser');
+
 
 const app = express();
 const db = require('./db');
@@ -14,15 +16,6 @@ app.use(
 );
 app.get('/', (request, response) => {
   response.json({ info: 'Node.js, Express, and Postgres API' });
-});
-
-app.get('/products', (req, res) => {
-  db.getProducts((err, result) => {
-    if (err) {
-      throw err;
-    }
-    res.send(result);
-  });
 });
 
 app.get('/reviews', (req, res) => {
@@ -62,7 +55,7 @@ app.post('/reviews', (req, res) => {
       console.log(err);
       throw err;
     }
-    res.send(result);
+    res.sendStatus(201);
   });
 });
 
