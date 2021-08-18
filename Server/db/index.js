@@ -71,40 +71,37 @@ const postReviews = (options, callback) => {
     } else {
       const reviewId = results.rows[0].review_id;
 
-      let photos = [];
+      const photos = [];
       options.photos.forEach((item, index) => {
         photos.push([reviewId, item.url]);
       });
 
-     let query = format('INSERT INTO reviews_photos (review_id, url) VALUES %L', photos);
+      const query = format('INSERT INTO reviews_photos (review_id, url) VALUES %L', photos);
       pool.query(query, (error, results) => {
         if (error) {
           callback(error, null);
         } else {
           // const reviewIds = results.rows[0].review_id;
-          let characteristics = [];
-          let characteristicsValue = Object.values(options.characteristics);
-          characteristicsValue.forEach(item => {
+          const characteristics = [];
+          const characteristicsValue = Object.values(options.characteristics);
+          characteristicsValue.forEach((item) => {
             characteristics.push([item.id, item.value, reviewId]);
           });
 
-          let characteristicsQuery =
-          format('INSERT INTO characteristics_reviews (characteristic_id, value,review_id) VALUES %L',
-           characteristics);
-           pool.query(characteristicsQuery, (error, results) => {
+          const characteristicsQuery = format('INSERT INTO characteristics_reviews (characteristic_id, value,review_id) VALUES %L',
+            characteristics);
+          pool.query(characteristicsQuery, (error, results) => {
             if (error) {
               callback(error, null);
-            }else {
+            } else {
               callback(null, results);
             }
-        });
-      };
-    });
-  };
-});
-}
-
-
+          });
+        }
+      });
+    }
+  });
+};
 
 module.exports = {
   getReviews,
